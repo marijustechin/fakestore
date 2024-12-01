@@ -3,6 +3,8 @@ import { API_PRODUCTS } from '../../helpers/constants';
 import axios from 'axios';
 import { PageTitle } from '../../components/shared/PageTitle';
 import { ProductCard } from '../../components/ProductCard';
+import { CategoriesList } from '../../components/CategoriesList';
+import { useParams, useSearchParams } from 'react-router';
 
 export interface IProduct {
   id: number;
@@ -25,22 +27,30 @@ export interface IApiResponse {
 }
 
 export default function ProductsPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const type = searchParams.get('type');
   const [products, setProducts] = useState<IProduct[]>([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    getAllProducts(API_PRODUCTS);
+    getAllProducts();
     setLoading(false);
-  }, []);
+  }, [type]);
 
-  const getAllProducts = async (url: string) => {
+  const getAllProducts = async () => {
+    let url = '';
+    if (type) {
+      url = API_PRODUCTS + `/category?type=${type}`;
+    } else {
+      url = API_PRODUCTS;
+    }
     try {
       const res = await axios.get<IApiResponse>(url);
       setProducts(res.data.products);
     } catch (error) {
-      setError('Nepavyko gauti duomenų');
+      setError('Nepavyko gauti duomenų - prekės');
     }
   };
 
@@ -52,8 +62,12 @@ export default function ProductsPage() {
         <div>{error}</div>
       ) : (
         <div className="grid grid-cols-12 gap-2">
-          <aside className="col-span-2">cia filtrai</aside>
+          <aside className="col-span-2">
+            <CategoriesList />
+          </aside>
           <section className="col-span-8">
+            <div>Viso prekių {products.length}</div>
+            <div>{type && <p>Kategorija: {type}</p>}</div>
             <div className="grid grid-cols-3 gap-3">
               {products.map((product) => (
                 <div key={product.id}>

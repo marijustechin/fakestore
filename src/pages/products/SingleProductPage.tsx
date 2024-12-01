@@ -1,9 +1,9 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { API_PRODUCTS } from '../../helpers/constants';
 import { PageTitle } from '../../components/shared/PageTitle';
 import { IProduct } from './ProductsPage';
+import { useParams } from 'react-router';
 
 interface ISingleProductResponse {
   status: string;
@@ -12,9 +12,12 @@ interface ISingleProductResponse {
 }
 
 export default function SingleProductPage() {
+  const params = useParams();
   const { id } = useParams();
   const [product, setProduct] = useState<IProduct>();
   const [error, setError] = useState('');
+
+  console.log(params);
 
   useEffect(() => {
     getProductById(id);
@@ -31,7 +34,7 @@ export default function SingleProductPage() {
         setProduct(res.data.product);
       }
     } catch (error) {
-      setError('Nepavyko gauti duomenų');
+      setError('Nepavyko gauti duomenų - viena prekė');
     }
   }
 
